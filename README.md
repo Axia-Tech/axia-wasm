@@ -5,7 +5,7 @@ Low-level WebAssembly format library.
 [![Build Status](https://travis-ci.org/axia-tech/axia-wasm.svg?branch=master)](https://travis-ci.org/axia-tech/axia-wasm)
 [![crates.io link](https://img.shields.io/crates/v/axia-wasm.svg)](https://crates.io/crates/axia-wasm)
 
-[Documentation](https://docs.rs/axia-wasm)
+[Documentation](https://axia-tech.github.io/axia-wasm/axia_wasm/)
 
 ## Rust WebAssembly format serializing/deserializing
 
@@ -13,12 +13,15 @@ Add to Cargo.toml
 
 ```toml
 [dependencies]
-axia-wasm = "0.42"
+axia-wasm = "0.31"
 ```
 
 and then
 
 ```rust
+
+extern crate axia_wasm;
+
 let module = axia_wasm::deserialize_file("./res/cases/v1/hello.wasm").unwrap();
 assert!(module.code_section().is_some());
 
@@ -47,12 +50,14 @@ Decoder can be fuzzed with `cargo-fuzz` using `wasm-opt` (https://github.com/Web
 ## `no_std` crates
 
 This crate has a feature, `std`, that is enabled by default. To use this crate
-in a `no_std` context, add the following to your `Cargo.toml` (still requires allocator though):
+in a `no_std` context, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-axia-wasm = { version = "0.41", default-features = false }
+axia-wasm = { version = "0.31", default-features = false }
 ```
+
+Until allocator api is stabilized, this type of use is limited to nightly Rust.
 
 # License
 

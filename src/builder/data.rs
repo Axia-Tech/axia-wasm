@@ -1,6 +1,6 @@
-use alloc::vec::Vec;
+use std::vec::Vec;
 use super::invoke::{Identity, Invoke};
-use crate::elements;
+use elements;
 
 /// Data segment builder
 pub struct DataSegmentBuilder<F=Identity> {
@@ -48,7 +48,7 @@ impl<F> DataSegmentBuilder<F> where F: Invoke<elements::DataSegment> {
 		self.callback.invoke(
 			elements::DataSegment::new(
 				self.mem_index,
-				Some(self.offset),
+				self.offset,
 				self.value,
 			)
 		)

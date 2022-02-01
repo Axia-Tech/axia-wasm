@@ -36,12 +36,10 @@ fn main() {
 
 		// This shows the initialization member of data segment
 		// (expression which must resolve in the linear memory location).
-		if let Some(offset) = entry.offset() {
-			println!("	init: {}", offset.code()[0]);
-		}
+		println!("    init: {}", entry.offset().code()[0]);
 
 		// This shows the total length of the data segment in bytes.
-		println!("	size: {}", entry.value().len());
+		println!("    size: {}", entry.value().len());
 
 		index += 1;
 	}

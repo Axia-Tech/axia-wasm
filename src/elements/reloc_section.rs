@@ -1,5 +1,6 @@
-use alloc::{string::String, vec::Vec};
-use crate::io;
+use io;
+use std::vec::Vec;
+use std::string::String;
 
 use super::{CountedList, CountedListWriter, CountedWriter, Deserialize, Error, Serialize, VarInt32, VarUint32, VarUint7};
 

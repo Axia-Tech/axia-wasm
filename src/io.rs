@@ -3,9 +3,6 @@
 //! Basically it just a replacement for the std::io that is usable from
 //! the `no_std` environment.
 
-#[cfg(feature="std")]
-use std::io;
-
 /// IO specific error.
 #[derive(Debug)]
 pub enum Error {
@@ -19,11 +16,11 @@ pub enum Error {
 	InvalidData,
 
 	#[cfg(feature = "std")]
-	IoError(std::io::Error),
+	IoError(::std::io::Error),
 }
 
 /// IO specific Result.
-pub type Result<T> = core::result::Result<T, Error>;
+pub type Result<T> = ::std::result::Result<T, Error>;
 
 pub trait Write {
 	/// Write a buffer of data into this write.
@@ -73,7 +70,7 @@ impl<T: AsRef<[u8]>> Read for Cursor<T> {
 }
 
 #[cfg(not(feature = "std"))]
-impl Write for alloc::vec::Vec<u8> {
+impl Write for ::std::vec::Vec<u8> {
 	fn write(&mut self, buf: &[u8]) -> Result<()> {
 		self.extend(buf);
 		Ok(())
@@ -81,7 +78,7 @@ impl Write for alloc::vec::Vec<u8> {
 }
 
 #[cfg(feature = "std")]
-impl<T: io::Read> Read for T {
+impl<T: ::std::io::Read> Read for T {
 	fn read(&mut self, buf: &mut [u8]) -> Result<()> {
 		self.read_exact(buf)
 			.map_err(Error::IoError)
@@ -89,7 +86,7 @@ impl<T: io::Read> Read for T {
 }
 
 #[cfg(feature = "std")]
-impl<T: io::Write> Write for T {
+impl<T: ::std::io::Write> Write for T {
 	fn write(&mut self, buf: &[u8]) -> Result<()> {
 		self.write_all(buf).map_err(Error::IoError)
 	}

@@ -1,14 +1,12 @@
-use alloc::vec::Vec;
-use crate::io;
+use std::cmp::min;
+use std::iter::{FromIterator, IntoIterator};
+use std::mem;
+use std::slice;
+use std::vec;
+use std::vec::Vec;
+use io;
 
 use super::{Deserialize, Error, Serialize, VarUint32};
-
-use alloc::vec;
-use core::{
-	cmp::min,
-	iter::{FromIterator, IntoIterator},
-	mem, slice
-};
 
 /// A map from non-contiguous `u32` keys to values of type `T`, which is
 /// serialized and deserialized ascending order of the keys. Normally used for
@@ -88,7 +86,7 @@ impl<T> IndexMap<T> {
 			existing
 		};
 		if mem::size_of::<usize>() > 4 {
-			debug_assert!(self.entries.len() <= (u32::max_value() as usize) + 1);
+			debug_assert!(self.entries.len() <= (::std::u32::MAX as usize) + 1);
 		}
 		#[cfg(slow_assertions)]
 		debug_assert_eq!(self.len, self.slow_len());
@@ -359,7 +357,7 @@ where
 
 #[cfg(test)]
 mod tests {
-	use crate::io;
+	use io;
 	use super::*;
 
 	#[test]

@@ -1,6 +1,6 @@
-use alloc::vec::Vec;
+use std::vec::Vec;
 use super::invoke::{Invoke, Identity};
-use crate::elements;
+use elements;
 
 pub struct ValueTypeBuilder<F=Identity> {
 	callback: F,
@@ -25,6 +25,32 @@ impl<F> ValueTypeBuilder<F> where F: Invoke<elements::ValueType> {
 
 	pub fn f64(self) -> F::Result {
 		self.callback.invoke(elements::ValueType::F64)
+	}
+}
+
+pub struct OptionalValueTypeBuilder<F=Identity> {
+	callback: F,
+}
+
+impl<F> OptionalValueTypeBuilder<F> where F: Invoke<Option<elements::ValueType>> {
+	pub fn with_callback(callback: F) -> Self {
+		OptionalValueTypeBuilder { callback: callback }
+	}
+
+	pub fn i32(self) -> F::Result {
+		self.callback.invoke(Some(elements::ValueType::I32))
+	}
+
+	pub fn i64(self) -> F::Result {
+		self.callback.invoke(Some(elements::ValueType::I64))
+	}
+
+	pub fn f32(self) -> F::Result {
+		self.callback.invoke(Some(elements::ValueType::F32))
+	}
+
+	pub fn f64(self) -> F::Result {
+		self.callback.invoke(Some(elements::ValueType::F64))
 	}
 }
 

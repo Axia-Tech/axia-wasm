@@ -1,5 +1,5 @@
-use alloc::vec::Vec;
-use crate::elements;
+use std::vec::Vec;
+use elements;
 use super::invoke::{Invoke, Identity};
 
 /// Memory definition struct

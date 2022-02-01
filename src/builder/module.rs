@@ -1,15 +1,10 @@
-use alloc::vec::Vec;
-use crate::elements;
-use super::{
-	import,
-	export,
-	global,
-	data,
-	invoke::{Invoke, Identity},
-	code::{self, SignaturesBuilder, FunctionBuilder},
-	memory::{self, MemoryBuilder},
-	table::{self, TableBuilder},
-};
+use std::vec::Vec;
+use super::invoke::{Invoke, Identity};
+use super::code::{self, SignaturesBuilder, FunctionBuilder};
+use super::memory::{self, MemoryBuilder};
+use super::table::{self, TableBuilder};
+use super::{import, export, global, data};
+use elements;
 
 /// Module builder
 pub struct ModuleBuilder<F=Identity> {
@@ -55,7 +50,6 @@ impl From<elements::Module> for ModuleScaffold {
 		let mut code: Option<elements::CodeSection> = None;
 		let mut data: Option<elements::DataSection> = None;
 
-		let mut other = Vec::new();
 		let mut sections = module.into_sections();
 		while let Some(section) = sections.pop() {
 			match section {
@@ -70,7 +64,7 @@ impl From<elements::Module> for ModuleScaffold {
 				elements::Section::Element(sect) => { element = Some(sect); }
 				elements::Section::Code(sect) => { code = Some(sect); }
 				elements::Section::Data(sect) => { data = Some(sect); }
-				section => other.push(section)
+				_ => {}
 			}
 		}
 
@@ -86,7 +80,7 @@ impl From<elements::Module> for ModuleScaffold {
 			element: element.unwrap_or_default(),
 			code: code.unwrap_or_default(),
 			data: data.unwrap_or_default(),
-			other,
+			other: sections,
 		}
 	}
 }
@@ -216,7 +210,7 @@ impl<F> ModuleBuilder<F> where F: Invoke<elements::Module> {
 		let memory_index = (entries.len() - 1) as u32;
 		for data in memory.data.drain(..) {
 			self.module.data.entries_mut()
-				.push(elements::DataSegment::new(memory_index, Some(data.offset), data.values))
+				.push(elements::DataSegment::new(memory_index, data.offset, data.values))
 		}
 		memory_index
 	}
@@ -228,16 +222,9 @@ impl<F> ModuleBuilder<F> where F: Invoke<elements::Module> {
 		let table_index = (entries.len() - 1) as u32;
 		for entry in table.elements.drain(..) {
 			self.module.element.entries_mut()
-				.push(elements::ElementSegment::new(table_index, Some(entry.offset), entry.values))
+				.push(elements::ElementSegment::new(table_index, entry.offset, entry.values))
 		}
 		table_index
-	}
-
-	/// Push global.
-	pub fn push_global(&mut self, global: elements::GlobalEntry) -> u32 {
-		let entries = self.module.global.entries_mut();
-		entries.push(global);
-		entries.len() as u32 - 1
 	}
 
 	fn resolve_type_ref(&mut self, signature: code::Signature) -> u32 {
@@ -271,7 +258,7 @@ impl<F> ModuleBuilder<F> where F: Invoke<elements::Module> {
 		).collect()
 	}
 
-	/// Push import entry to module. Note that this does not update calling indices in
+	/// Push import entry to module. Not that it does not update calling indices in
 	/// function bodies.
 	pub fn push_import(&mut self, import: elements::ImportEntry) -> u32 {
 		self.module.import.entries_mut().push(import);
@@ -535,7 +522,6 @@ pub fn from_module(module: elements::Module) -> ModuleBuilder {
 #[cfg(test)]
 mod tests {
 
-	use crate::elements;
 	use super::module;
 
 	#[test]
@@ -570,7 +556,7 @@ mod tests {
 	#[test]
 	fn global() {
 		let module = module()
-			.global().value_type().i64().mutable().init_expr(elements::Instruction::I64Const(5)).build()
+			.global().value_type().i64().mutable().init_expr(::elements::Instruction::I64Const(5)).build()
 			.build();
 
 		assert_eq!(module.global_section().expect("global section to exist").entries().len(), 1);
@@ -580,7 +566,7 @@ mod tests {
 	fn data() {
 		let module = module()
 			.data()
-				.offset(elements::Instruction::I32Const(16))
+				.offset(::elements::Instruction::I32Const(16))
 				.value(vec![0u8, 15, 10, 5, 25])
 				.build()
 			.build();
